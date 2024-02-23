@@ -34,7 +34,7 @@ void MuPdfRenderer::render(int pageIndex)
 {    
     fz_page* page = NULL;
     fz_pixmap *pix = NULL;
-    fz_matrix ctm = fz_;
+    fz_matrix ctm = fz_identity;
     fz_device* device = NULL;
     fz_rect bbox;
     int x, y;
