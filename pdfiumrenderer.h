@@ -2,7 +2,7 @@
 #define PDFIUMRENDERER_H
 
 #include "PdfRenderer.h"
-#include "fpdf_doc.h"
+#include "public/fpdf_doc.h"
 class PdfiumRenderer : public PdfRenderer
 {
 public:

@@ -1,5 +1,5 @@
 #include "pdfiumrenderer.h"
-#include <cpp/fpdf_scopers.h>
+#include "public/cpp/fpdf_scopers.h"
 #include <malloc.h>
 #include <iostream>
 PdfiumRenderer::PdfiumRenderer()

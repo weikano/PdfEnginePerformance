@@ -39,6 +39,7 @@ typedef struct fz_tuning_context fz_tuning_context;
 typedef struct fz_store fz_store;
 typedef struct fz_glyph_cache fz_glyph_cache;
 typedef struct fz_document_handler_context fz_document_handler_context;
+typedef struct fz_archive_handler_context fz_archive_handler_context;
 typedef struct fz_output fz_output;
 typedef struct fz_context fz_context;
 
@@ -144,6 +145,7 @@ int fz_caught(fz_context *ctx);
 	This assumes no intervening use of fz_try/fz_catch.
 */
 void fz_rethrow_if(fz_context *ctx, int errcode);
+void fz_rethrow_unless(fz_context *ctx, int errcode);
 
 /**
 	Format an error message, and log it to the registered
@@ -174,9 +176,11 @@ void fz_end_throw_on_repair(fz_context *ctx);
 #define fz_vwarn(CTX, FMT, VA) fz_vwarnFL(CTX, __FILE__, __LINE__, FMT, VA)
 #define fz_warn(CTX, ...) fz_warnFL(CTX, __FILE__, __LINE__, __VA_ARGS__)
 #define fz_rethrow_if(CTX, ERRCODE) fz_rethrow_ifFL(CTX, __FILE__, __LINE__, ERRCODE)
+#define fz_rethrow_unless(CTX, ERRCODE) fz_rethrow_unlessFL(CTX, __FILE__, __LINE__, ERRCODE)
 #define fz_log_error_printf(CTX, ...) fz_log_error_printfFL(CTX, __FILE__, __LINE__, __VA_ARGS__)
 #define fz_vlog_error_printf(CTX, FMT, VA) fz_log_error_printfFL(CTX, __FILE__, __LINE__, FMT, VA)
 #define fz_log_error(CTX, STR) fz_log_error_printfFL(CTX, __FILE__, __LINE__, STR)
+#define fz_do_catch(CTX) fz_do_catchFL(CTX, __FILE__, __LINE__)
 FZ_NORETURN void fz_vthrowFL(fz_context *ctx, const char *file, int line, int errcode, const char *fmt, va_list ap);
 FZ_NORETURN void fz_throwFL(fz_context *ctx, const char *file, int line, int errcode, const char *fmt, ...) FZ_PRINTFLIKE(5,6);
 FZ_NORETURN void fz_rethrowFL(fz_context *ctx, const char *file, int line);
@@ -184,10 +188,26 @@ void fz_morph_errorFL(fz_context *ctx, const char *file, int line, int fromcode,
 void fz_vwarnFL(fz_context *ctx, const char *file, int line, const char *fmt, va_list ap);
 void fz_warnFL(fz_context *ctx, const char *file, int line, const char *fmt, ...) FZ_PRINTFLIKE(4,5);
 void fz_rethrow_ifFL(fz_context *ctx, const char *file, int line, int errcode);
+void fz_rethrow_unlessFL(fz_context *ctx, const char *file, int line, int errcode);
 void fz_log_error_printfFL(fz_context *ctx, const char *file, int line, const char *fmt, ...) FZ_PRINTFLIKE(4,5);
 void fz_vlog_error_printfFL(fz_context *ctx, const char *file, int line, const char *fmt, va_list ap);
 void fz_log_errorFL(fz_context *ctx, const char *file, int line, const char *str);
+int fz_do_catchFL(fz_context *ctx, const char *file, int line);
 #endif
+
+/* Report an error to the registered error callback. */
+void fz_report_error(fz_context *ctx);
+
+/*
+ * Swallow an error and ignore it completely.
+ * This should only be called to signal that you've handled a TRYLATER or ABORT error,
+ */
+void fz_ignore_error(fz_context *ctx);
+
+/* Convert an error into another runtime exception.
+ * For use when converting an exception from Fitz to a language binding exception.
+ */
+const char *fz_convert_error(fz_context *ctx, int *code);
 
 enum
 {
@@ -699,7 +719,7 @@ void fz_var_imp(void *);
 fz_jmp_buf *fz_push_try(fz_context *ctx);
 int fz_do_try(fz_context *ctx);
 int fz_do_always(fz_context *ctx);
-int fz_do_catch(fz_context *ctx);
+int (fz_do_catch)(fz_context *ctx);
 
 #ifndef FZ_JMPBUF_ALIGN
 #define FZ_JMPBUF_ALIGN 32
@@ -760,6 +780,7 @@ struct fz_context
 
 	/* TODO: should these be unshared? */
 	fz_document_handler_context *handler;
+	fz_archive_handler_context *archive;
 	fz_style_context *style;
 	fz_tuning_context *tuning;
 

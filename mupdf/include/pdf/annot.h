@@ -738,7 +738,21 @@ void pdf_print_default_appearance(fz_context *ctx, char *buf, int nbuf, const ch
 void pdf_annot_default_appearance(fz_context *ctx, pdf_annot *annot, const char **font, float *size, int *n, float color[4]);
 void pdf_set_annot_default_appearance(fz_context *ctx, pdf_annot *annot, const char *font, float size, int n, const float *color);
 
+/*
+ * Request that an appearance stream should be generated for an annotation if none is present.
+ * It will be created in future calls to pdf_update_annot or pdf_update_page.
+ */
+void pdf_annot_request_synthesis(fz_context *ctx, pdf_annot *annot);
+
+/*
+ * Request that an appearance stream should be re-generated for an annotation
+ * the next time pdf_annot_update or pdf_page_update is called.
+ * You usually won't need to call this, because changing any annotation attributes
+ * via the pdf_annot functions will do so automatically.
+ * It will be created in future calls to pdf_update_annot or pdf_update_page.
+ */
 void pdf_annot_request_resynthesis(fz_context *ctx, pdf_annot *annot);
+
 int pdf_annot_needs_resynthesis(fz_context *ctx, pdf_annot *annot);
 void pdf_set_annot_resynthesised(fz_context *ctx, pdf_annot *annot);
 void pdf_dirty_annot(fz_context *ctx, pdf_annot *annot);
@@ -917,14 +931,5 @@ void pdf_set_annot_hidden_for_editing(fz_context *ctx, pdf_annot *annot, int hid
  * Apply Redaction annotation by redacting page underneath and removing the annotation.
  */
 int pdf_apply_redaction(fz_context *ctx, pdf_annot *annot, pdf_redact_options *opts);
-
-void pdf_set_annot_note_id(fz_context *ctx, pdf_annot *annot, const char *value);
-const char* pdf_annot_note_id(fz_context *ctx, pdf_annot *annot);
-
-void pdf_set_annot_range(fz_context *ctx, pdf_annot *annot, int startIndex, int endIndex);
-void pdf_annot_range(fz_context *ctx, pdf_annot *annot, int *out2int);
-
-void pdf_set_annot_last_modified_time(fz_context *ctx, pdf_annot *annot, long long int timestamp);
-long long int pdf_annot_last_modified_time(fz_context *ctx, pdf_annot *annot);
 
 #endif

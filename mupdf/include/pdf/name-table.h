@@ -22,6 +22,7 @@
 
 /* Alphabetically sorted list of all PDF names to be available as constants */
 PDF_MAKE_NAME("1.2", 1_2)
+PDF_MAKE_NAME("1.5", 1_5)
 PDF_MAKE_NAME("3D", 3D)
 PDF_MAKE_NAME("A", A)
 PDF_MAKE_NAME("A85", A85)
@@ -583,6 +584,3 @@ PDF_MAKE_NAME("n1", n1)
 PDF_MAKE_NAME("n2", n2)
 PDF_MAKE_NAME("op", op)
 PDF_MAKE_NAME("r", r)
-PDF_MAKE_NAME("kIReaderNoteID", NOTE_ID)
-PDF_MAKE_NAME("kIReaderNoteRange", RANGE)
-PDF_MAKE_NAME("kIReaderNoteLastModifiedTime", LAST_MODIFIED_TIME)

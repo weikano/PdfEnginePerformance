@@ -1,8 +1,6 @@
 #include "MuPdfRenderer.h"
 #include <iostream>
 
-#include "mupdf/fitz/buffer.h"
-
 MuPdfRenderer::MuPdfRenderer()
 {
     std::cout<<__FUNCTION__<<std::endl;
