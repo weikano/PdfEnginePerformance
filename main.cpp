@@ -7,7 +7,8 @@
 #include <algorithm>
 
 #include <chrono>
-
+#include <filesystem>
+namespace fs = std::filesystem;
 
 
 static void test(PdfRenderer *renderer, std::string& dir, std::vector<std::string>& names)
@@ -30,10 +31,14 @@ static void test1(PdfRenderer* renderer, const char* prefix)
 {
 
     std::vector<std::string> files;
-    files.push_back("/home/roman/git/PdfEnginePerformance/testpdf/冠状动脉血栓抽吸临床应用专家共识.pdf");
+    for(const auto& entry : fs::directory_iterator(RESOURCE_DIR)) {
+        files.push_back(entry.path());
+    }
 
     for(const auto& file:files)
     {
+        auto starttime = std::chrono::system_clock::now();
+        std::cout<<"begin file: " << file<<std::endl;
         renderer->openDocument(file.c_str(), "");
         int pageCount = renderer->getPageCount();
         std::cout<<"pageCount:"<<pageCount<<std::endl;
@@ -42,30 +47,34 @@ static void test1(PdfRenderer* renderer, const char* prefix)
             renderer->render(i);
         }
         renderer->closeDocument();
+        std::chrono::duration<double> diff = std::chrono::system_clock::now() - starttime;
+#ifdef USE_SKIA
+    std::cout<<"SKIA_ENALED: ";
+#else
+    std::cout<<"SKIA_DISABLED: ";
+#endif
+        auto total = diff.count();
+        std::cout<<"total time: "<<total<<", avg: "<< total/pageCount << std::endl;
+        std::cout<<"end file========================"<<std::endl;
     }
 }
 
 static void testmultitimes(PdfRenderer* renderer, const char* prefix, int times)
 {
-    auto starttime = std::chrono::system_clock::now();
-    std::cout<<prefix<<" start"<<std::endl;
+
     for(int i=0;i<times;i++) {
         test1(renderer, prefix);
-    }
-
-    std::chrono::duration<double> diff = std::chrono::system_clock::now() - starttime;
-    std::cout<<prefix<<", "<<"time cost :"<<diff.count()<<std::endl;
+    }  
 }
 
 int main(int argc, char *argv[])
 {
-    PdfRenderer* mupdf = new MuPdfRenderer();
-    PdfRenderer* pdfium = new PdfiumRenderer();
-
+//    PdfRenderer* mupdf = new MuPdfRenderer();
+    PdfRenderer* pdfium = new PdfiumRenderer();    
 //    testmultitimes(mupdf, "mupdf",2);
     testmultitimes(pdfium,"pdfium", 1);
 
-    delete mupdf;
+//    delete mupdf;
     delete pdfium;
 
     return 0;

@@ -23,14 +23,16 @@ add_executable(PdfEnginePerformance
   pdfiumrenderer.cpp
 )
 
-set(PdfiumUseSkia false)
-
+set(PdfiumUseSkia true)
+message(${CMAKE_CURRENT_SOURCE_DIR}/testpdf)
+add_definitions(-DRESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/testpdf\")
 if(PdfiumUseSkia)
-    message("USE PDFIUM SKIA")
+    message("SKIA ENABLED")
+    add_definitions(-DUSE_SKIA)
     include_directories(pdfium/skia/include)
 else()
     include_directories(pdfium/skia_disabled/include)
-    message("USE PDFIUM")
+    message("SKIA DISABLED")
 endif()
 
 #target_link_libraries(PdfEnginePerformance Qt${QT_VERSION_MAJOR}::Core)
